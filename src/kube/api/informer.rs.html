@@ -133,10 +133,25 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">api</span>::<span class="ident">resource</span>::{
-    <span class="ident">watch_resource_entries_after</span>,
-    <span class="ident">list_zero_resource_entries</span>,
     <span class="ident">Resource</span>,
     <span class="ident">ResourceList</span>,
     <span class="ident">WatchEvent</span>,
@@ -185,7 +200,7 @@
 {
     <span class="doccomment">/// Create a reflector with a kube client on a kube resource</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// Initializes with blank version string to get all events</span>
+    <span class="doccomment">/// Initializes resourceVersion with a 1 limit list call</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">client</span>: <span class="ident">APIClient</span>, <span class="ident">r</span>: <span class="ident">ApiResource</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Creating Informer for {:?}&quot;</span>, <span class="ident">r</span>);
         <span class="kw">let</span> <span class="ident">initial</span> <span class="op">=</span> <span class="ident">get_resource_version</span>(<span class="kw-2">&amp;</span><span class="ident">client</span>, <span class="kw-2">&amp;</span><span class="ident">r</span>)<span class="question-mark">?</span>;
@@ -197,6 +212,19 @@
         })
     }
 
+    <span class="doccomment">/// Create a reflector with a kube client on a kube resource</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Initializes resourceVersion from a passed in value</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_version</span>(<span class="ident">client</span>: <span class="ident">APIClient</span>, <span class="ident">r</span>: <span class="ident">ApiResource</span>, <span class="ident">v</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Creating Informer for {:?}&quot;</span>, <span class="ident">r</span>);
+        <span class="prelude-val">Ok</span>(<span class="ident">Informer</span> {
+            <span class="ident">client</span>,
+            <span class="ident">resource</span>: <span class="ident">r</span>,
+            <span class="ident">version</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">RwLock</span>::<span class="ident">new</span>(<span class="ident">v</span>)),
+            <span class="ident">p1</span>: <span class="ident">PhantomData</span>, <span class="ident">p2</span>: <span class="ident">PhantomData</span>,
+        })
+    }
+
     <span class="doccomment">/// Run a single watch poll</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If this returns an error, it resets the resourceVersion.</span>
@@ -204,7 +232,7 @@
     <span class="doccomment">/// If handling all the events is too time consuming, you probably need a queue.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">poll</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">WatchEvents</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span> {
         <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Watching {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">resource</span>);
-        <span class="kw">let</span> <span class="ident">oldver</span> <span class="op">=</span> { <span class="self">self</span>.<span class="ident">version</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">clone</span>() }; <span class="comment">// avoid holding lock</span>
+        <span class="kw">let</span> <span class="ident">oldver</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">version</span>();
         <span class="kw">let</span> <span class="ident">evs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">watch_for_resource_updates</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">resource</span>, <span class="kw-2">&amp;</span><span class="ident">oldver</span>) {
             <span class="prelude-val">Ok</span>((<span class="ident">events</span>, <span class="ident">newver</span>)) <span class="op">=&gt;</span> {
                 <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">version</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">newver</span>;
@@ -222,18 +250,24 @@
         };
         <span class="prelude-val">Ok</span>(<span class="ident">evs</span>)
     }
+
+    <span class="doccomment">/// Return the current version</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="self">self</span>.<span class="ident">version</span>.<span class="ident">read</span>().<span class="ident">unwrap</span>().<span class="ident">clone</span>()
+    }
 }
 
 <span class="doccomment">/// Convenience alias around WatchEvents</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">WatchEvents</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WatchEvent</span><span class="op">&lt;</span><span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>;
 
-<span class="doccomment">/// Convenience aliases when only grabbing one of the fields</span>
+<span class="doccomment">/// Informer around a Spec object only (blank Status)</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">InformerSpec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Informer</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span>;
+<span class="doccomment">/// Informer around a Status object only (blank Spec)</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">InformerStatus</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Informer</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">U</span><span class="op">&gt;</span>;
 
 <span class="kw">fn</span> <span class="ident">get_resource_version</span>(<span class="ident">client</span>: <span class="kw-2">&amp;</span><span class="ident">APIClient</span>, <span class="ident">rg</span>: <span class="kw-2">&amp;</span><span class="ident">ApiResource</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
 {
-    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">list_zero_resource_entries</span>(<span class="kw-2">&amp;</span><span class="ident">rg</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">rg</span>.<span class="ident">list_zero_resource_entries</span>()<span class="question-mark">?</span>;
 
     <span class="comment">// parse to void a ResourceList into void except for Metadata</span>
     <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Deserialize</span>)]</span>
@@ -251,7 +285,7 @@
   <span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span>,
   <span class="ident">U</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span>,
 {
-    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">watch_resource_entries_after</span>(<span class="kw-2">&amp;</span><span class="ident">rg</span>, <span class="ident">ver</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">rg</span>.<span class="ident">watch_resource_entries_after</span>(<span class="ident">ver</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">events</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">request_events</span>::<span class="op">&lt;</span><span class="ident">WatchEvent</span><span class="op">&lt;</span><span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
     <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Got {} events for {}&quot;</span>, <span class="ident">events</span>.<span class="ident">len</span>(), <span class="ident">rg</span>.<span class="ident">resource</span>);
 

@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["api",""],["client",""],["config",""]],"struct":[["Error","The `Error` type, which can contain any failure."]],"type":[["Result",""]]});
+initSidebarItems({"mod":[["api","API helpers to make use of k8s-openapi easier"],["client","A basic API client with standard kube error handling"],["config","In cluster or out of cluster kubeconfig to be used by an api client"]],"struct":[["Error","The `Error` type, which can contain any failure."]],"type":[["Result",""]]});
