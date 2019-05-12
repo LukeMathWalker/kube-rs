@@ -168,25 +168,6 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">api</span>::<span class="ident">resource</span>::{
     <span class="ident">ResourceList</span>,
@@ -205,7 +186,7 @@
     <span class="ident">time</span>::{<span class="ident">Duration</span>},
 };
 
-<span class="doccomment">/// A rust reinterpretation of of client-go&#39;s Reflector</span>
+<span class="doccomment">/// A reflection of `Resource` state in kubernetes</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This watches and caches a `Resource&lt;T, U&gt;` by:</span>
 <span class="doccomment">/// - seeding the cache from a large initial list call</span>
@@ -217,17 +198,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Reflector</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">Clone</span>, <span class="ident">U</span>: <span class="ident">Clone</span>
 {
-    <span class="doccomment">/// Application state can be read continuously with read</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Write access to this data is entirely encapsulated within poll + refresh</span>
-    <span class="doccomment">/// Users are meant to start a thread to poll, and maybe ask for a refresh.</span>
-    <span class="doccomment">/// Beyond that, use the read call as a local cache.</span>
     <span class="ident">data</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">RwLock</span><span class="op">&lt;</span><span class="ident">Cache</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
-
-    <span class="doccomment">/// Kubernetes API Client</span>
     <span class="ident">client</span>: <span class="ident">APIClient</span>,
-
-    <span class="doccomment">/// Api Resource this Reflector is responsible for</span>
     <span class="ident">resource</span>: <span class="ident">ApiResource</span>,
 }
 
@@ -262,7 +234,7 @@
             <span class="prelude-val">Err</span>(<span class="ident">_e</span>) <span class="op">=&gt;</span> {
                 <span class="comment">// If desynched due to mismatching resourceVersion, retry in a bit</span>
                 <span class="ident">std</span>::<span class="ident">thread</span>::<span class="ident">sleep</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">10</span>));
-                <span class="self">self</span>.<span class="ident">refresh</span>()<span class="question-mark">?</span>; <span class="comment">// propagate error if this failed..</span>
+                <span class="self">self</span>.<span class="ident">reset</span>()<span class="question-mark">?</span>; <span class="comment">// propagate error if this failed..</span>
             }
         }
 
@@ -282,10 +254,10 @@
         <span class="prelude-val">Ok</span>(<span class="ident">data</span>)
     }
 
-    <span class="doccomment">/// Refresh the full resource state with a LIST call</span>
+    <span class="doccomment">/// Reset the state with a full LIST call</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Same as what is done in `State::new`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refresh</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Refreshing {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">resource</span>);
         <span class="kw">let</span> <span class="ident">current</span> : <span class="ident">Cache</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">get_resource_entries</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">resource</span>)<span class="question-mark">?</span>;
         <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">data</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">current</span>;
@@ -295,16 +267,6 @@
 
 <span class="doccomment">/// Resource map exposed by the Reflector from its cache</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ResourceMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span>,<span class="ident">U</span><span class="op">&gt;&gt;</span>;
-
-<span class="doccomment">/// Resource map exposed by a ReflectorSpec (when there&#39;s no Status)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ResourceSpecMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span><span class="op">&gt;</span>;
-<span class="doccomment">/// Resource map exposed by a ReflectorStatus (when there&#39;s no Spec)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ResourceStatusMap</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Resource</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span>;
-
-<span class="doccomment">/// Reflector around a Spec object only (blank Status)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ReflectorSpec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Reflector</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;&gt;</span>;
-<span class="doccomment">/// Reflector around a Status object only (blank Spec)</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ReflectorStatus</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Reflector</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>()<span class="op">&gt;</span>, <span class="ident">U</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Cache state used by a Reflector</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
@@ -323,14 +285,14 @@
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">request</span>::<span class="op">&lt;</span><span class="ident">ResourceList</span><span class="op">&lt;</span><span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">metadata</span>.<span class="ident">resourceVersion</span>.<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="string">&quot;&quot;</span>.<span class="ident">into</span>());
-    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Got {} {} at resourceVersion={:?}&quot;</span>, <span class="ident">res</span>.<span class="ident">items</span>.<span class="ident">len</span>(), <span class="ident">rg</span>.<span class="ident">resource</span>, <span class="ident">version</span>);
 
+    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Got {} {} at resourceVersion={:?}&quot;</span>, <span class="ident">res</span>.<span class="ident">items</span>.<span class="ident">len</span>(), <span class="ident">rg</span>.<span class="ident">resource</span>, <span class="ident">version</span>);
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">res</span>.<span class="ident">items</span> {
         <span class="comment">// The non-generic parts we care about are spec + status</span>
         <span class="ident">data</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">metadata</span>.<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">i</span>);
     }
     <span class="kw">let</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>().<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>);
-    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Initialized with: {}&quot;</span>, <span class="ident">keys</span>);
+    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Initialized with: {}&quot;</span>, <span class="ident">keys</span>);
     <span class="prelude-val">Ok</span>(<span class="ident">Cache</span> { <span class="ident">data</span>, <span class="ident">version</span> })
 }
 
@@ -340,7 +302,7 @@
   <span class="ident">U</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span>,
 {
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">rg</span>.<span class="ident">watch_resource_entries_after</span>(<span class="kw-2">&amp;</span><span class="ident">c</span>.<span class="ident">version</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">request_events</span>::<span class="op">&lt;</span><span class="ident">WatchEvent</span><span class="op">&lt;</span><span class="ident">Resource</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">request_events</span>::<span class="op">&lt;</span><span class="ident">WatchEvent</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;&gt;</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// Follow docs conventions and store the last resourceVersion</span>
     <span class="comment">// https://kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes</span>
