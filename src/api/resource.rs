@@ -176,6 +176,27 @@ impl<T, U> Debug for WatchEvent<T, U> where
 
 // -------------------------------------------------------
 
+/// A port of typemeta in go
+///
+/// To be flattenend into Resource
+#[derive(Deserialize, Serialize, Clone, Default)]
+pub struct TypeMeta {
+    /// Representattion of the REST resource this object represents.
+    #[serde(default)]
+    pub kind: String,
+
+    // APIVersion defines the versioned schema of this representation of an object.
+    #[serde(default)]
+    pub apiVersion: String,
+}
+
+impl Debug for TypeMeta {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}{}", self.apiVersion, self.kind)
+    }
+}
+
+
 /// A generic kubernetes resource
 ///
 /// This is used instead of a full struct for `Deployment`, `Pod`, `Node`, `CRD`, ...
@@ -196,17 +217,11 @@ impl<T, U> Debug for WatchEvent<T, U> where
 pub struct Resource<T, U> where
   T: Clone, U: Clone
 {
-    /// The version of the API
+    /// Flattened typemeta.
     ///
-    /// Marked optional because it's not always present for items in a `ResourceList`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub apiVersion: Option<String>,
-
-    /// The name of the API
-    ///
-    /// Marked optional because it's not always present for items in a `ResourceList`
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub kind: Option<String>,
+    /// Marked default because it's not always present for items in a `ResourceList`
+    #[serde(default, flatten)]
+    pub typemeta: TypeMeta,
 
     /// Resource metadata
     ///

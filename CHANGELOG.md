@@ -1,3 +1,7 @@
+0.7.0 / 2019-05-12
+==================
+  * `apiVersion` and `kind` on output object now found under `typemeta`
+
 0.6.0 / 2019-05-12
 ==================
   * Expose getter `Informer::version`
