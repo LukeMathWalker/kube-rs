@@ -19,6 +19,7 @@ ALIASES["crossbeam_queue"] = {};
 ALIASES["crossbeam_utils"] = {};
 ALIASES["dirs"] = {};
 ALIASES["dtoa"] = {};
+ALIASES["either"] = {};
 ALIASES["encoding_rs"] = {};
 ALIASES["error_chain"] = {};
 ALIASES["failure"] = {};
