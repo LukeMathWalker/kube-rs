@@ -570,24 +570,6 @@
 <span id="570">570</span>
 <span id="571">571</span>
 <span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="prelude-ty">Result</span>, <span class="ident">ErrorKind</span>};
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">ResultExt</span>;
@@ -612,11 +594,6 @@
     <span class="doccomment">/// Name of the api prefix (api or apis typically)</span>
     <span class="kw">pub</span> <span class="ident">prefix</span>: <span class="ident">String</span>,
     <span class="comment">// extra properties for sub resources</span>
-
-    <span class="doccomment">/// Version of status subresource (takes precedence on version and beta atm)</span>
-    <span class="kw">pub</span> <span class="ident">status_version</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Version of scale subresource (takes precedence on version and beta atm)</span>
-    <span class="kw">pub</span> <span class="ident">scale_version</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RawApi</span> {
@@ -626,8 +603,6 @@
             <span class="ident">namespace</span>: <span class="prelude-val">None</span>,
             <span class="ident">group</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">version</span>: <span class="string">&quot;v1&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">scale_version</span>: <span class="string">&quot;v1beta2&quot;</span>.<span class="ident">into</span>(),
-            <span class="ident">status_version</span>: <span class="string">&quot;v1beta2&quot;</span>.<span class="ident">into</span>(),
             <span class="ident">prefix</span>: <span class="string">&quot;apis&quot;</span>.<span class="ident">into</span>(), <span class="comment">// seems most common</span>
         }
     }
@@ -756,27 +731,16 @@
 
 <span class="comment">// -------------------------------------------------------</span>
 
-<span class="kw">enum</span> <span class="ident">UrlVersion</span> {
-    <span class="ident">Default</span>,
-    <span class="ident">Scale</span>,
-    <span class="ident">Status</span>,
-}
-
 <span class="kw">impl</span> <span class="ident">RawApi</span> {
-    <span class="kw">fn</span> <span class="ident">make_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">UrlVersion</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">make_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="ident">pref</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">prefix</span> <span class="op">==</span> <span class="string">&quot;&quot;</span> { <span class="string">&quot;&quot;</span>.<span class="ident">into</span>() } <span class="kw">else</span> { <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="self">self</span>.<span class="ident">prefix</span>) };
         <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">group</span> <span class="op">==</span> <span class="string">&quot;&quot;</span> { <span class="string">&quot;&quot;</span>.<span class="ident">into</span>() } <span class="kw">else</span> { <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="self">self</span>.<span class="ident">group</span>) };
-        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">r</span> {
-            <span class="ident">UrlVersion</span>::<span class="ident">Scale</span> <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="self">self</span>.<span class="ident">scale_version</span>),
-            <span class="ident">UrlVersion</span>::<span class="ident">Status</span> <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="self">self</span>.<span class="ident">status_version</span>),
-            <span class="ident">UrlVersion</span>::<span class="ident">Default</span> <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/&quot;</span>, <span class="self">self</span>.<span class="ident">version</span>)
-        };
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ns</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">namespace</span> { <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;namespaces/{}/&quot;</span>, <span class="ident">ns</span>) } <span class="kw">else</span> { <span class="string">&quot;&quot;</span>.<span class="ident">into</span>() };
 
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/{prefix}{group}{version}{namespaces}{resource}&quot;</span>,
+        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/{prefix}{group}{version}/{namespaces}{resource}&quot;</span>,
             <span class="ident">prefix</span> <span class="op">=</span> <span class="ident">pref</span>,
             <span class="ident">group</span> <span class="op">=</span> <span class="ident">g</span>,
-            <span class="ident">version</span> <span class="op">=</span> <span class="ident">v</span>,
+            <span class="ident">version</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">version</span>,
             <span class="ident">namespaces</span> <span class="op">=</span> <span class="ident">n</span>,
             <span class="ident">resource</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">resource</span>,
         )
@@ -837,7 +801,7 @@
 <span class="kw">impl</span> <span class="ident">RawApi</span> {
     <span class="doccomment">/// List a collection of a resource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lp</span>: <span class="kw-2">&amp;</span><span class="ident">ListParams</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fields</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lp</span>.<span class="ident">field_selector</span> {
@@ -857,7 +821,7 @@
 
     <span class="doccomment">/// Create a minimial list request to seed an initial resourceVersion</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">list_zero_resource_entries</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lp</span>: <span class="kw-2">&amp;</span><span class="ident">ListParams</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;limit&quot;</span>, <span class="string">&quot;1&quot;</span>); <span class="comment">// can&#39;t have 0..</span>
         <span class="kw">if</span> <span class="ident">lp</span>.<span class="ident">include_uninitialized</span> {
@@ -870,8 +834,8 @@
     }
 
     <span class="doccomment">/// Watch a resource at a given version</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">watch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lp</span>: <span class="kw-2">&amp;</span><span class="ident">ListParams</span>, <span class="ident">ver</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">watch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lp</span>: <span class="kw-2">&amp;</span><span class="ident">ListParams</span>, <span class="ident">ver</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
 
         <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;watch&quot;</span>, <span class="string">&quot;true&quot;</span>);
@@ -895,7 +859,7 @@
 
     <span class="doccomment">/// Get a single instance</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">get</span>(<span class="ident">urlstr</span>);
@@ -904,7 +868,7 @@
 
     <span class="doccomment">/// Create an instance of a resource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -916,7 +880,7 @@
 
     <span class="doccomment">/// Delete an instance of a resource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">dp</span>: <span class="kw-2">&amp;</span><span class="ident">DeleteParams</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span><span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span><span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">dp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -934,7 +898,7 @@
 
     <span class="doccomment">/// Delete a collection of a resource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_collection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lp</span>: <span class="kw-2">&amp;</span><span class="ident">ListParams</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fields</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lp</span>.<span class="ident">field_selector</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;fieldSelector&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">fields</span>);
@@ -954,7 +918,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Requires a serialized merge-patch+json at the moment.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -971,7 +935,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Requires metadata.resourceVersion set in data</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Default</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -983,7 +947,7 @@
 
     <span class="doccomment">/// Get an instance of the scale subresource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Scale</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">get</span>(<span class="ident">urlstr</span>);
@@ -992,7 +956,7 @@
 
     <span class="doccomment">/// Patch an instance of the scale subresource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Scale</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -1006,7 +970,7 @@
 
     <span class="doccomment">/// Replace an instance of the scale subresource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace_scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Scale</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -1018,7 +982,7 @@
 
     <span class="doccomment">/// Get an instance of the status subresource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Status</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">get</span>(<span class="ident">urlstr</span>);
@@ -1027,7 +991,7 @@
 
     <span class="doccomment">/// Patch an instance of the status subresource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Status</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -1041,7 +1005,7 @@
 
     <span class="doccomment">/// Replace an instance of the status subresource</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>(<span class="ident">UrlVersion</span>::<span class="ident">Status</span>) <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
         <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
             <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
@@ -1113,7 +1077,7 @@
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
     <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">patch_status</span>(<span class="string">&quot;mynode&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1beta2/nodes/mynode/status?&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/status?&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PATCH&quot;</span>);
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1121,7 +1085,7 @@
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
     <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">replace_status</span>(<span class="string">&quot;mynode&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1beta2/nodes/mynode/status?&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/status?&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PUT&quot;</span>);
 }
 
@@ -1147,14 +1111,14 @@
     <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">replace_status</span>(<span class="string">&quot;mycrd.domain.io&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(),
-        <span class="string">&quot;/apis/apiextensions.k8s.io/v1beta2/customresourcedefinitions/mycrd.domain.io/status?&quot;</span>
+        <span class="string">&quot;/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/mycrd.domain.io/status?&quot;</span>
     );
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">get_scale_path</span>(){
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_scale</span>(<span class="string">&quot;mynode&quot;</span>).<span class="ident">unwrap</span>();
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1beta2/nodes/mynode/scale&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/scale&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;GET&quot;</span>);
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1162,7 +1126,7 @@
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
     <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">patch_scale</span>(<span class="string">&quot;mynode&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1beta2/nodes/mynode/scale?&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/scale?&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PATCH&quot;</span>);
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1170,7 +1134,7 @@
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
     <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">replace_scale</span>(<span class="string">&quot;mynode&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
-    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1beta2/nodes/mynode/scale?&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/scale?&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PUT&quot;</span>);
 }
 

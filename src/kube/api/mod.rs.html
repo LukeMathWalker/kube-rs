@@ -42,6 +42,15 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! API helpers</span>
 
@@ -70,7 +79,13 @@
 };
 
 <span class="kw">mod</span> <span class="ident">typed</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">typed</span>::<span class="ident">Api</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">typed</span>::{
+    <span class="ident">Api</span>,
+    <span class="comment">// well, ok:</span>
+    <span class="ident">Scale</span>,
+    <span class="ident">ScaleSpec</span>,
+    <span class="ident">ScaleStatus</span>,
+};
 
 <span class="kw">mod</span> <span class="ident">resource</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">resource</span>::{
@@ -81,6 +96,9 @@
     <span class="comment">//CreateResponse,</span>
     <span class="comment">//Response,</span>
 };
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;openapi&quot;</span>)]</span>
+<span class="kw">mod</span> <span class="ident">openapi</span>;
 
 <span class="kw">mod</span> <span class="ident">metadata</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">metadata</span>::{
