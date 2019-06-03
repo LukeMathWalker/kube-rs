@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["APIClient","APIClient requires `config::Configuration` includes client to connect with kubernetes cluster."],["ApiStatus",""],["StatusCause",""],["StatusDetails",""]]});
+initSidebarItems({"struct":[["APIClient","APIClient requires `config::Configuration` includes client to connect with kubernetes cluster."],["Status",""],["StatusCause",""],["StatusDetails",""]]});
