@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/api/raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../kube/index.html'><img src='../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/api/raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../kube/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -580,6 +580,190 @@
 <span id="580">580</span>
 <span id="581">581</span>
 <span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="prelude-ty">Result</span>, <span class="ident">ErrorKind</span>};
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">ResultExt</span>;
@@ -721,6 +905,36 @@
         }
     }
 
+    <span class="comment">// Stable Service resource constructor</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">v1Service</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">group</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">resource</span>: <span class="string">&quot;services&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">prefix</span>: <span class="string">&quot;api&quot;</span>.<span class="ident">into</span>(),
+            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+        }
+    }
+
+    <span class="comment">// Stable Secret resource constructor</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">v1Secret</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">group</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">resource</span>: <span class="string">&quot;secrets&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">prefix</span>: <span class="string">&quot;api&quot;</span>.<span class="ident">into</span>(),
+            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+        }
+    }
+
+    <span class="comment">// Stable ConfigMap resource constructor</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">v1ConfigMap</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">group</span>: <span class="string">&quot;&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">resource</span>: <span class="string">&quot;configmaps&quot;</span>.<span class="ident">into</span>(),
+            <span class="ident">prefix</span>: <span class="string">&quot;api&quot;</span>.<span class="ident">into</span>(),
+            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+        }
+    }
+
     <span class="doccomment">/// Custom resource definition constructor</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">v1beta1CustomResourceDefinition</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
@@ -779,10 +993,84 @@
     <span class="kw">pub</span> <span class="ident">timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
 }
 
-<span class="doccomment">/// Common query parameters for put/post/patch calls</span>
+<span class="doccomment">/// Common query parameters for put/post calls</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PostParams</span> {
     <span class="kw">pub</span> <span class="ident">dry_run</span>: <span class="ident">bool</span>,
+}
+
+<span class="doccomment">/// Common query parameters for patch calls</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PatchParams</span> {
+    <span class="kw">pub</span> <span class="ident">dry_run</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Strategy which will be used. Defaults to `PatchStrategy::Strategic`</span>
+    <span class="kw">pub</span> <span class="ident">patch_strategy</span>: <span class="ident">PatchStrategy</span>,
+    <span class="doccomment">/// force Apply requests. Applicable only to `PatchStrategy::Apply`</span>
+    <span class="kw">pub</span> <span class="ident">force</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// fieldManager is a name of the actor that is making changes. Required for `PatchStrategy::Apply`</span>
+    <span class="doccomment">/// optional for everything else</span>
+    <span class="kw">pub</span> <span class="ident">field_manager</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+}
+
+<span class="kw">impl</span> <span class="ident">PatchParams</span> {
+    <span class="kw">fn</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">field_manager</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">field_manager</span> {
+            <span class="comment">// Implement the easy part of validation, in future this may be extended to provide validation as in go code</span>
+            <span class="comment">// For now it&#39;s fine, because k8s API server will return an error</span>
+            <span class="kw">if</span> <span class="ident">field_manager</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">128</span> {
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestValidation</span>(<span class="string">&quot;Failed to validate PatchParameters::field_manager!&quot;</span>.<span class="ident">to_owned</span>()).<span class="ident">into</span>())
+            }
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">patch_strategy</span> <span class="op">!=</span> <span class="ident">PatchStrategy</span>::<span class="ident">Apply</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">force</span> {
+             <span class="comment">// if not force, all other fields are valid for all types of patch requests</span>
+            <span class="prelude-val">Err</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestValidation</span>(<span class="string">&quot;Force is applicable only for Apply strategy!&quot;</span>.<span class="ident">to_owned</span>()).<span class="ident">into</span>())
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Ok</span>(())
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">populate_qp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">qp</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dry_run</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">force</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;force&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">field_manager</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">field_manager</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;fieldManager&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">field_manager</span>);
+        }
+    }
+}
+
+
+<span class="doccomment">/// For patch different patch types are supported. See https://kubernetes.io/docs/tasks/run-application/update-api-object-kubectl-patch/#use-a-json-merge-patch-to-update-a-deployment</span>
+<span class="doccomment">/// Apply strategy is kinda special</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PatchStrategy</span> {
+    <span class="ident">Apply</span>,
+    <span class="ident">JSON</span>,
+    <span class="ident">Merge</span>,
+    <span class="ident">Strategic</span>
+}
+
+<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">PatchStrategy</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="kw">let</span> <span class="ident">content_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
+            <span class="ident">PatchStrategy</span>::<span class="ident">Apply</span> <span class="op">=&gt;</span> <span class="string">&quot;application/apply-patch+yaml&quot;</span>,
+            <span class="ident">PatchStrategy</span>::<span class="ident">JSON</span> <span class="op">=&gt;</span> <span class="string">&quot;application/json-patch+json&quot;</span>,
+            <span class="ident">PatchStrategy</span>::<span class="ident">Merge</span> <span class="op">=&gt;</span> <span class="string">&quot;application/merge-patch+json&quot;</span>,
+            <span class="ident">PatchStrategy</span>::<span class="ident">Strategic</span> <span class="op">=&gt;</span> <span class="string">&quot;application/strategic-merge-patch+json&quot;</span>
+        };
+        <span class="ident">f</span>.<span class="ident">write_str</span>(<span class="ident">content_type</span>)
+    }
+}
+
+<span class="comment">// Kubectl defaults to Strategic strategy, but doing so will break existing consumers</span>
+<span class="comment">// so, currently we still default to Merge it may change in future versions</span>
+<span class="comment">// Strategic merge doesn&#39;t work with CRD types https://github.com/kubernetes/kubernetes/issues/52772</span>
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">PatchStrategy</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="self">Self</span> { <span class="ident">PatchStrategy</span>::<span class="ident">Merge</span> }
 }
 
 <span class="doccomment">/// Common query parameters for delete calls</span>
@@ -815,6 +1103,30 @@
     <span class="ident">Background</span>,
     <span class="doccomment">/// A cascading policy that deletes all dependents in the foreground</span>
     <span class="ident">Foreground</span>,
+}
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LogParams</span> {
+    <span class="doccomment">/// The container for which to stream logs. Defaults to only container if there is one container in the pod.</span>
+    <span class="kw">pub</span> <span class="ident">container</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Follow the log stream of the pod. Defaults to false.</span>
+    <span class="kw">pub</span> <span class="ident">follow</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// If set, the number of bytes to read from the server before terminating the log output.</span>
+    <span class="doccomment">/// This may not display a complete final line of logging, and may return slightly more or slightly less than the specified limit.</span>
+    <span class="kw">pub</span> <span class="ident">limit_bytes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If &#39;true&#39;, then the output is pretty printed.</span>
+    <span class="kw">pub</span> <span class="ident">pretty</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Return previous terminated container logs. Defaults to false.</span>
+    <span class="kw">pub</span> <span class="ident">previous</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// A relative time in seconds before the current time from which to show logs.</span>
+    <span class="doccomment">/// If this value precedes the time a pod was started, only logs since the pod start will be returned.</span>
+    <span class="doccomment">/// If this value is in the future, no logs will be returned. Only one of sinceSeconds or sinceTime may be specified.</span>
+    <span class="kw">pub</span> <span class="ident">since_seconds</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If set, the number of lines from the end of the logs to show.</span>
+    <span class="doccomment">/// If not specified, logs are shown from the creation of the container or sinceSeconds or sinceTime</span>
+    <span class="kw">pub</span> <span class="ident">tail_lines</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If true, add an RFC3339 or RFC3339Nano timestamp at the beginning of every line of log output. Defaults to false.</span>
+    <span class="kw">pub</span> <span class="ident">timestamps</span>: <span class="ident">bool</span>,
 }
 
 <span class="doccomment">/// Convenience methods found from API conventions</span>
@@ -937,17 +1249,16 @@
     <span class="doccomment">/// Patch an instance of a resource</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Requires a serialized merge-patch+json at the moment.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PatchParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">pp</span>.<span class="ident">validate</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
-        <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
-            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
-        }
+        <span class="ident">pp</span>.<span class="ident">populate_qp</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">qp</span>);
         <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
 
         <span class="prelude-val">Ok</span>(<span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">patch</span>(<span class="ident">urlstr</span>)
             .<span class="ident">header</span>(<span class="string">&quot;Accept&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/merge-patch+json&quot;</span>)
+            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="ident">pp</span>.<span class="ident">patch_strategy</span>.<span class="ident">to_string</span>())
             .<span class="ident">body</span>(<span class="ident">patch</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestBuild</span>)<span class="question-mark">?</span>)
     }
 
@@ -975,16 +1286,15 @@
     }
 
     <span class="doccomment">/// Patch an instance of the scale subresource</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PatchParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">pp</span>.<span class="ident">validate</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/scale?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
-        <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
-            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
-        }
+        <span class="ident">pp</span>.<span class="ident">populate_qp</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">qp</span>);
         <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">patch</span>(<span class="ident">urlstr</span>)
             .<span class="ident">header</span>(<span class="string">&quot;Accept&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/merge-patch+json&quot;</span>)
+            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="ident">pp</span>.<span class="ident">patch_strategy</span>.<span class="ident">to_string</span>())
             .<span class="ident">body</span>(<span class="ident">patch</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestBuild</span>)<span class="question-mark">?</span>)
     }
 
@@ -1010,16 +1320,15 @@
     }
 
     <span class="doccomment">/// Patch an instance of the status subresource</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PostParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">patch_status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pp</span>: <span class="kw-2">&amp;</span><span class="ident">PatchParams</span>, <span class="ident">patch</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">pp</span>.<span class="ident">validate</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/status?&quot;</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
-        <span class="kw">if</span> <span class="ident">pp</span>.<span class="ident">dry_run</span> {
-            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;dryRun&quot;</span>, <span class="string">&quot;All&quot;</span>);
-        }
+        <span class="ident">pp</span>.<span class="ident">populate_qp</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">qp</span>);
         <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
         <span class="prelude-val">Ok</span>(<span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">patch</span>(<span class="ident">urlstr</span>)
             .<span class="ident">header</span>(<span class="string">&quot;Accept&quot;</span>, <span class="string">&quot;application/json&quot;</span>)
-            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/merge-patch+json&quot;</span>)
+            .<span class="ident">header</span>(<span class="string">&quot;Content-Type&quot;</span>, <span class="ident">pp</span>.<span class="ident">patch_strategy</span>.<span class="ident">to_string</span>())
             .<span class="ident">body</span>(<span class="ident">patch</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestBuild</span>)<span class="question-mark">?</span>)
     }
 
@@ -1034,7 +1343,50 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">put</span>(<span class="ident">urlstr</span>);
         <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">body</span>(<span class="ident">data</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestBuild</span>)<span class="question-mark">?</span>)
     }
+}
 
+<span class="kw">impl</span> <span class="ident">RawApi</span> {
+    <span class="doccomment">/// Get a pod logs</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">log</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">lp</span>: <span class="kw-2">&amp;</span><span class="ident">LogParams</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">http</span>::<span class="ident">Request</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_url</span>() <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="ident">name</span> <span class="op">+</span> <span class="string">&quot;/&quot;</span> <span class="op">+</span> <span class="string">&quot;log&quot;</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qp</span> <span class="op">=</span> <span class="ident">url</span>::<span class="ident">form_urlencoded</span>::<span class="ident">Serializer</span>::<span class="ident">new</span>(<span class="ident">base_url</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lp</span>.<span class="ident">container</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;container&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">container</span>);
+        }
+
+        <span class="kw">if</span> <span class="ident">lp</span>.<span class="ident">follow</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;follow&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limitBytes</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lp</span>.<span class="ident">limit_bytes</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;limitBytes&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">limitBytes</span>.<span class="ident">to_string</span>());
+        }
+
+        <span class="kw">if</span> <span class="ident">lp</span>.<span class="ident">pretty</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;pretty&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        }
+
+        <span class="kw">if</span> <span class="ident">lp</span>.<span class="ident">previous</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;previous&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sinceSeconds</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lp</span>.<span class="ident">since_seconds</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;sinceSeconds&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">sinceSeconds</span>.<span class="ident">to_string</span>());
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tailLines</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lp</span>.<span class="ident">tail_lines</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;tailLines&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">tailLines</span>.<span class="ident">to_string</span>());
+        }
+
+        <span class="kw">if</span> <span class="ident">lp</span>.<span class="ident">timestamps</span> {
+            <span class="ident">qp</span>.<span class="ident">append_pair</span>(<span class="string">&quot;timestamps&quot;</span>, <span class="string">&quot;true&quot;</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">urlstr</span> <span class="op">=</span> <span class="ident">qp</span>.<span class="ident">finish</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">http</span>::<span class="ident">Request</span>::<span class="ident">get</span>(<span class="ident">urlstr</span>);
+        <span class="prelude-val">Ok</span>(<span class="ident">req</span>.<span class="ident">body</span>(<span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">RequestBuild</span>)<span class="question-mark">?</span>)
+    }
 }
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1091,13 +1443,27 @@
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/namespaces&quot;</span>)
 }
 
+<span class="attribute">#[<span class="ident">test</span>]</span>
+<span class="kw">fn</span> <span class="ident">patch_params_validation</span>() {
+    <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PatchParams</span>::<span class="ident">default</span>();
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pp</span>.<span class="ident">validate</span>().<span class="ident">is_ok</span>(), <span class="string">&quot;default params should always be valid&quot;</span>);
+
+    <span class="kw">let</span> <span class="ident">patch_strategy_apply_true</span> <span class="op">=</span> <span class="ident">PatchParams</span> {
+        <span class="ident">patch_strategy</span>: <span class="ident">PatchStrategy</span>::<span class="ident">Merge</span>,
+        <span class="ident">force</span>: <span class="bool-val">true</span>,
+        ..<span class="ident">Default</span>::<span class="ident">default</span>()
+    };
+    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">patch_strategy_apply_true</span>.<span class="ident">validate</span>().<span class="ident">is_err</span>(), <span class="string">&quot;Merge strategy shouldn&#39;t be valid if `force` set to true&quot;</span>);
+}
+
 <span class="comment">// subresources with weird version accuracy</span>
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">patch_status_path</span>(){
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
-    <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
+    <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PatchParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">patch_status</span>(<span class="string">&quot;mynode&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/status?&quot;</span>);
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">headers</span>().<span class="ident">get</span>(<span class="string">&quot;Content-Type&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">to_str</span>().<span class="ident">unwrap</span>(), <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">PatchStrategy</span>::<span class="ident">Merge</span>));
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PATCH&quot;</span>);
 }
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1119,10 +1485,12 @@
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(),
         <span class="string">&quot;/apis/clux.dev/v1/namespaces/myns/foos?&quot;</span>
     );
-    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">patch</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">patch_params</span> <span class="op">=</span> <span class="ident">PatchParams</span>::<span class="ident">default</span>();
+    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">patch</span>(<span class="string">&quot;baz&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">patch_params</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(),
         <span class="string">&quot;/apis/clux.dev/v1/namespaces/myns/foos/baz?&quot;</span>
     );
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PATCH&quot;</span>);
 }
 
 <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1144,7 +1512,7 @@
 <span class="attribute">#[<span class="ident">test</span>]</span>
 <span class="kw">fn</span> <span class="ident">patch_scale_path</span>(){
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">RawApi</span>::<span class="ident">v1Node</span>();
-    <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PostParams</span>::<span class="ident">default</span>();
+    <span class="kw">let</span> <span class="ident">pp</span> <span class="op">=</span> <span class="ident">PatchParams</span>::<span class="ident">default</span>();
     <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">patch_scale</span>(<span class="string">&quot;mynode&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">pp</span>, <span class="macro">vec</span><span class="macro">!</span>[]).<span class="ident">unwrap</span>();
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">uri</span>(), <span class="string">&quot;/api/v1/nodes/mynode/scale?&quot;</span>);
     <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>.<span class="ident">method</span>(), <span class="string">&quot;PATCH&quot;</span>);

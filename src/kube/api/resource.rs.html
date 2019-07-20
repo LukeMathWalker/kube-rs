@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/api/resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../kube/index.html'><img src='../../../rust-logo.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/api/resource.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>resource.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css"><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script src="../../../storage.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="shortcut icon" href="../../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../../kube/index.html'><div class='logo-container'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -107,6 +107,8 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
 
@@ -116,9 +118,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">api</span>::<span class="ident">metadata</span>::{<span class="ident">ObjectMeta</span>, <span class="ident">ListMeta</span>, <span class="ident">TypeMeta</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ApiError</span>;
 
-<span class="doccomment">/// Accessors ever kubernetes object must have</span>
+<span class="doccomment">/// Accessor trait needed to build higher level abstractions on kubernetes objects</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">KubeObject</span> {
+    <span class="doccomment">/// Every object must have ObjectMeta</span>
     <span class="kw">fn</span> <span class="ident">meta</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ObjectMeta</span>;
+    <span class="comment">// NB: TypeMeta also required, but not used by abstractions yet</span>
 }
 
 
@@ -151,14 +155,14 @@
 
 <span class="comment">// -------------------------------------------------------</span>
 
-<span class="doccomment">/// A generic kubernetes object</span>
+<span class="doccomment">/// A standard kubernetes object with .spec and .status</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This is used instead of a full struct for `Deployment`, `Pod`, `Node`, `CRD`, ...</span>
 <span class="doccomment">/// Kubernetes&#39; API generally exposes core structs in this manner, but sometimes the</span>
-<span class="doccomment">/// status, `U`, is not always present, and is therefore wrapped in `Option`.</span>
+<span class="doccomment">/// status, `U`, is missing, and is therefore wrapped in `Option`.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The reasons we use this wrapper rather than the actual structs are:</span>
-<span class="doccomment">/// - generic requirements on fields (need metadata) is impossible</span>
+<span class="doccomment">/// - metadata field requirement for generic Informers is impossible (no field level traits)</span>
 <span class="doccomment">/// - you cannot implement traits for objects you don&#39;t own =&gt; no addon traits to k8s-openapi</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// This struct appears in `ObjectList` and `WatchEvent`, and when using a `Reflector`,</span>
@@ -201,7 +205,7 @@
 <span class="doccomment">/// Kubernetes&#39; API [always seem to expose list structs in this manner](https://docs.rs/k8s-openapi/0.4.0/k8s_openapi/apimachinery/pkg/apis/meta/v1/struct.ObjectMeta.html?search=List).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// Note that this is only used internally within reflectors and informers,</span>
-<span class="doccomment">/// and is generally produced from list/watch/delete collection queries on an `Api`.</span>
+<span class="doccomment">/// and is generally produced from list/watch/delete collection queries on an `RawApi`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ObjectList</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span>
   <span class="ident">T</span>: <span class="ident">Clone</span>
